@@ -1,9 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
-
+import {Container} from 'react-bootstrap';
+import Header from './components/Header';
+import Footer from './components/Footer'
 function App() {
   return (
-    <h1>Welcome to proshop</h1>
+    <>
+      <Header />
+      <main className='py-3'>
+        <Container>
+          <h1>Welcome To Proshop</h1>
+        </Container>
+      </main>
+      <Footer/>
+    </>
   );
 }
 
