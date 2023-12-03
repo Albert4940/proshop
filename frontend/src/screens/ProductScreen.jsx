@@ -1,13 +1,14 @@
 import { useParams } from "react-router-dom";
-import products from '../products';
+import { useAxios } from "../utils/hooks/useAxios";
 import { Link } from "react-router-dom";
 import { Col, Image, ListGroup, Row, Card, Button } from "react-bootstrap";
 import Rating from "../components/Rating";
 
 export default function ProductScreen() {
-    const {id: productId} = useParams();
-    const product = products.find((p) => p._id === productId);
 
+    const {id: productId} = useParams();
+    const {data:product, error} = useAxios(`/api/products/${productId}`);
+    
   return (
     <>
         <Link className="btn btn-light my-3" to='/'>
