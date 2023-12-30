@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux";
 export default function ProductScreen() {
 
     const {id: productId} = useParams();
-    const [qty, setQty] = useState()
+    const [qty, setQty] = useState(1)
     const {data:product, isLoading, error} = useGetProductDetailsQuery(productId);
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -21,7 +21,6 @@ export default function ProductScreen() {
         dispatch(addToCart({...product,qty}))
         navigate('/cart')
     }
-    
   return (
     <>
         <Link className="btn btn-light my-3" to='/'>
