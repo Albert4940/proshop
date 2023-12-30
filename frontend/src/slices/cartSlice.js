@@ -20,12 +20,27 @@ const cartSlice = createSlice({
             if(existItem){
                 state.cartItems = state.cartItems.map( x => x._id === existItem._id ? item : x)
             }else{
-                state.cartItems =  [...state, item];
+                state.cartItems =  [...state.cartItems, item];
             }
             //
             state.itemsPrice = addDecimals(state.cartItems.reduce((acc, item) => acc + item.price * item.qty, 0))
+
+            state.shippingPrice = addDecimals(state.itemsPrice > 100 ? 0 : 10)
+            
+            // Calculate tax price (15% tax)
+            state.taxPrice = addDecimals(Number((0.15 * state.itemsPrice).toFixed(2)))
+
+            //Calculate total price
+            state.totalPrice = (
+                Number(state.itemsPrice) +
+                Number(state.shippingPrice) +
+                Number(state.taxPrice)
+            ).toFixed(2);
+
+            localStorage.setItem('cart', JSON.stringify(state));
         }
     }
 })
 
+export const {addToCart} = cartSlice.actions;
 export default cartSlice.reducer;
