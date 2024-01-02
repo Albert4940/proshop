@@ -73,14 +73,38 @@ export const logoutUser = asyncHandler(async (req, res) => {
 //@route POST /api/users/auth
 //@access Public
 export const updateUserProfile = asyncHandler(async (req, res) => {
-    res.send("Update User Profile");
+    const user = await User.findById(req.user._id);
+    
+    if(user){
+        user.name = req.body.name || user.name;
+        user.email = req.body.email || user.email;
+
+        //implement new usecase for this
+        if(req.body.password){
+            user.password = req.body.password;
+        }
+
+        const updatedUser = await user.save();
+
+        res.json(userCreator(updatedUser))
+    }else{
+        res.status(404);
+        throw new Error('User not found')
+    }
 })
 
 //@desc Auth user & get token
 //@route POST /api/users/auth
 //@access Public
 export const getUserProfile = asyncHandler(async (req, res) => {
-    res.send("Get User Profile");
+    const user = await User.findById(req.user._id);
+
+    if(user){
+        res.json(userCreator(user))
+    }else{
+        res.status(404);
+        throw new Error('User not found');
+    }
 })
 
 //@desc Auth user & get token
