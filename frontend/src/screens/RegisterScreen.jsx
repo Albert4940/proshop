@@ -1,8 +1,13 @@
 import { useNavigate, useLocation} from 'react-router-dom';
 import { FormContainer } from "../components/FormContainer"
 import { Button, Form, Row, Col } from "react-bootstrap";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from "react-toastify";
+import { useRegisterMutation } from '../slices/usersApiSlice';
+import { setCredentials } from '../slices/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import Loader from '../components/Loader';
+import { Link } from 'react-router-dom';
 
 const  RegisterScreen = ()  => {
   const [name, setName] = useState();
@@ -10,11 +15,32 @@ const  RegisterScreen = ()  => {
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassword] = useState();
   
-  const handlerSubmit = (e) => {
+  const navigate = useNavigate();
+  const [register, {isLoading}] = useRegisterMutation();
+  const dispatch = useDispatch();
+  const {userInfo} = useSelector(state => state.auth)
+  const {search} = useLocation();
+  const sp = new URLSearchParams(search)
+  const redirect = sp.get('redirect') || '/'
+
+  useEffect(() => {
+    if(userInfo)
+        navigate(redirect)
+  }, [navigate,redirect, userInfo])
+  
+  const handlerSubmit = async (e) => {
     e.preventDefault();
     
     if(password !== confirmPassword){
-        toast.error("Two passwords aren't identicaly");
+        toast.error("Passwords do not match");
+    }else{
+        try{
+            const res = await register({name, email, password}).unwrap();
+            dispatch(setCredentials({...res}))
+            navigate(redirect)
+        }catch(err){
+            toast.error(err?.data?.message || err.message);
+        }
     }
   }
   return (
@@ -24,7 +50,7 @@ const  RegisterScreen = ()  => {
             <Form.Group className="my-2" controlId="name">
                 <Form.Label>Name</Form.Label>
                 <Form.Control 
-                    type="text"
+                    type="name"
                     value={name}
                     placeholder="Enter name"
                     onChange={e => setName(e.target.value)}
@@ -61,10 +87,21 @@ const  RegisterScreen = ()  => {
             <Button
                 type="submit"
                 variant="primary"
+                disabled={isLoading}
             >
                 Register
             </Button>
+
+            {isLoading && <Loader />}
         </Form>
+        <Row className="py-2">
+            <Col>
+            Already have an account?{' '}
+            <Link to={redirect ? `/login?redirect=${redirect}` : '/login'}>
+                Login
+            </Link>
+            </Col>
+        </Row>
     </FormContainer>
   )
 }
