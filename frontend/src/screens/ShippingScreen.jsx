@@ -25,7 +25,7 @@ const ShippingScreen = () => {
     } 
   return (
     <FormContainer>
-        <CheckoutSteps step1/>
+        <CheckoutSteps step1 step2/>
         <h1>Shipping</h1>
         <Form onSubmit={handlerSubmit}>
             <Form.Group className="py-2" controlId="address">
