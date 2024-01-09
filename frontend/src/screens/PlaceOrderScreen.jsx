@@ -42,7 +42,7 @@ const PlaceOrderScreen = () => {
 
         dispatch(clearCartItems())
 
-        navigate(`order/${res._id}`)
+        navigate(`/order/${res._id}`)
     }catch(err){
         toast.error(err)
     }
