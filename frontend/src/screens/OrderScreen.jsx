@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { useGetOrderDetailsQuery, usePayOrderMutation, useGetPayPalClientIdQuery } from '../slices/ordersApiSlice';
+import { useGetOrderDetailsQuery, usePayOrderMutation, useGetPayPalClientIdQuery, useDeliverOrderMutation } from '../slices/ordersApiSlice';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import {toast} from 'react-toastify'
@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 const OrderScreen = () => {
   
     const {id: orderId} = useParams();
+    const [deliverOrder, {isLoading: loadingDeliver}] = useDeliverOrderMutation();
     const {
         data: order,
         refetch,
@@ -87,6 +88,15 @@ const OrderScreen = () => {
         })
   }
 
+  const deliverOrderHandler = async () => {
+        try {
+            await deliverOrder(orderId)
+            refetch();
+            toast.success('Order delivered');
+        } catch (error) {
+            toast.error(error?.data?.message || error.message);
+        }
+  }
   return isLoading ? (<Loader />) : 
   error ? (
     <Message varaint='danger'>{error.data.message}</Message>
@@ -211,6 +221,22 @@ const OrderScreen = () => {
                                         </div>
                                     </div>
                                 )}
+                            </ListGroup.Item>
+                        )}
+
+                        {loadingDeliver && <Loader />}
+                        {userInfo && 
+                        userInfo.isAdmin && 
+                        order.isPaid && 
+                        !order.isDelivered && (
+                            <ListGroup.Item>
+                                <Button
+                                    type='button'
+                                    className='btn btn-block'
+                                    onClick={deliverOrderHandler}
+                                >
+                                    Mark As Delivered
+                                </Button>
                             </ListGroup.Item>
                         )}
                     </ListGroup>
