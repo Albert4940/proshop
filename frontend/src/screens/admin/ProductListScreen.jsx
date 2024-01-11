@@ -1,5 +1,5 @@
 import { Button, Col, Row, Table } from "react-bootstrap";
-import { useCreateProductMutation, useGetProductsQuery } from "../../slices/productsApiSlice"
+import { useCreateProductMutation, useDeleteProductMutation, useGetProductsQuery } from "../../slices/productsApiSlice"
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
@@ -9,15 +9,25 @@ import {toast} from 'react-toastify'
 const ProductListScreen = () => {
   const {data: products, isLoading, error, refetch} = useGetProductsQuery();
   const [createProduct, {isLoading: loadingCreate}] = useCreateProductMutation();
+  const [deleteProduct,{isLoading: loadingDelete}] = useDeleteProductMutation()
   
-  const deleteHandler = (idProduct) => {
-    console.log(idProduct)
+  const deleteHandler = async (idProduct) => {
+    if(window.confirm('Are you sure?')){
+      try{
+        await deleteProduct(idProduct);
+        toast.success('Product deleted')
+        refetch()
+      }catch(err){
+        toast.error(err?.data?.message || err.message)
+      }
+    }
   }
 
   const createProductHandler = async () => {
     if(window.confirm('Are you sure you want to create a new Product?')){
       try{
         await createProduct()
+        toast.success('Product Created')
         refetch()
       }catch(err){
         toast.error(err?.data?.message || err.message)
@@ -39,6 +49,7 @@ const ProductListScreen = () => {
                 </Button>
             </Col>
         </Row>
+        {loadingDelete && <Loader />}
         {loadingCreate && <Loader />}
         {isLoading ? <Loader /> : error ? 
         <Message variant='danger'>{error}</Message> : 
