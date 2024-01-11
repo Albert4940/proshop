@@ -21,4 +21,25 @@ const getProductById = asyncHandler(async (req,res) => {
         throw new Error('Resource not found');
     }
 })
-export {getProducts, getProductById};
+
+//@desc Fetch a product
+//@route GET /api/products/:id
+//@access Public
+const createProduct = asyncHandler(async (req,res) => {
+  const product = new Product({
+    name:'Sample name',
+    price: 0,
+    user: req.user._id,
+    brand:'Sample brand',
+    category:'Sample category',
+    countInStock:0,
+    numReviews:0,
+    description: 'Sample description',
+    image:'/images/sample.jpg'
+  })
+
+  const createdProduct = await product.save();
+  res.status(201).json(createdProduct);
+})
+
+export {getProducts, getProductById, createProduct};
