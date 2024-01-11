@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useGetProductDetailsQuery, useUpdateProductMutation } from "../../slices/productsApiSlice";
+import { useGetProductDetailsQuery, useUpdateProductMutation, useUploadProductImageMutation } from "../../slices/productsApiSlice";
 import { FormContainer } from "../../components/FormContainer";
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
@@ -25,6 +25,8 @@ const ProductEditScreen = () => {
         error} = useGetProductDetailsQuery(productId)
     
     const [updateProduct, {isLoading: loadingUpdate}] = useUpdateProductMutation()
+    const [uploadProductImage, {isLoading: loadingUpload}] = useUploadProductImageMutation();
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -58,13 +60,27 @@ const ProductEditScreen = () => {
             toast.error(err?.data?.message || err.error)
         }
     }
+
+    const uploadFileHandler = async (e) => {
+        const formData = new FormData();
+        formData.append('image', e.target.files[0])
+        try{
+            const res = await uploadProductImage(formData).unwrap();
+            toast.success(res.message);
+            setImage(res.image)
+        }catch(err){
+            toast.error(err?.data?.message || err.error)
+        }
+    }
+
     return (
     <>
         <Link to='/admin/productList' className='btn btn-light my-3'>
         Go Back</Link>
         <FormContainer>
             <h1>Edit Product</h1>
-            {loadingUpdate ? <Loader /> : 
+            {loadingUpdate && <Loader />}
+            {isLoading ? <Loader /> : 
             error ? 
             <Message variant='danger'>{error.data.message}</Message>
         : (
@@ -97,8 +113,13 @@ const ProductEditScreen = () => {
                         value={image}
                         onChange={e => setImage(e.target.value)}
                     />
+                    <Form.Control 
+                        type='file'
+                        label='Choose file'
+                        onChange={uploadFileHandler}
+                    />
                 </Form.Group>
-                {/* IMAGE INPUT PLACEHOLDER*/}
+
                 <Form.Group controlId='brand'>
                     <Form.Label>Brand</Form.Label>
                     <Form.Control
