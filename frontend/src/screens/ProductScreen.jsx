@@ -9,6 +9,7 @@ import Message from "../components/Message";
 import { useState } from "react";
 import {addToCart} from "../slices/cartSlice"
 import { useDispatch, useSelector } from "react-redux";
+import Meta from "../components/Meta";
 
 export default function ProductScreen() {
 
@@ -56,6 +57,7 @@ export default function ProductScreen() {
             <Message variant="danger">{error?.data?.message || error.error}</Message>
         ) : (
             <>
+                <Meta title={product.name} description={product.description} />
                 <Row>
                     <Col md={6}>
                         <Image src={product.image} alt={product.name} fluid />
